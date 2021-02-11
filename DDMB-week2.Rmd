@@ -31,7 +31,7 @@ To get an idea on the outliers in the data, inspect the main variables gross inc
 
 ```{r}
 par(mfrow=c(1,4))
-# please insert your code here
+# please insert your code here x 
 ```
 
 Identify the outliers by the method of the interquartile range (the difference between the first and third quarter). Create a function to calculate the upper and lower limits:
