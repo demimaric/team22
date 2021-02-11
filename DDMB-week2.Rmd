@@ -1,0 +1,305 @@
+---
+title: "Data Driven Decision-Making in Business"
+subtitle: "Week 1"
+author: "Meike Morren" # fill in your name
+output: pdf_document
+---
+```{css, echo=FALSE}
+.colorCode {
+background-color: #ff5a5f
+}
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Last week you got acquainted with classification and you've created an example on the Airbnb dataset to classify rating. In the following weeks we will focus on *unsupervised* classification. This means you do not know what groups could be distinguished in the data, but you do know which variables you would like to use to group the observations.
+
+# 1. Prepare variables
+First read in the datafile `supermarket-sales.csv` which you can find on canvas. For more information, visit: [kaggle](https://www.kaggle.com/aungpyaeap/supermarket-sales). Explore the datafile. In particular, observe how many observations, what is the unit of observation, and how many metric variables are included in the datafile.
+
+```{r}
+df<-read.csv("Data/supermarket-sales.csv", sep=",")
+dim(df)
+colnames(df)
+str(df)
+```
+
+## Outliers
+To get an idea on the outliers in the data, inspect the main variables gross income, rating, cogs (costs of the product) and unit price using a boxplot. Are there outliers in the data?
+
+```{r}
+par(mfrow=c(1,4))
+# please insert your code here
+```
+
+Identify the outliers by the method of the interquartile range (the difference between the first and third quarter). Create a function to calculate the upper and lower limits:
+
+$$ IQR = Q3 - Q1$$
+$$lower = Q1 - 1.5*IQR$$
+$$upper = Q3 + 1.5*IQR$$
+```{r}
+calculate_limits<-function(var){
+  IQR <- # please insert your code here
+  lower <- # please insert your code here
+  upper <- # please insert your code here
+  return(list(lower, upper)) # this list contains two values that you can retrieve by [[]]
+}
+```
+
+Remove outliers using your function for each of the four variables explored above. This can be done by assigning an NA to all the data outside the limits calculated above. Do this separately for each variable!
+
+```{r}
+# please insert your code here
+```
+
+Explore again using boxplots:
+```{r}
+# please insert your code here
+```
+
+## Standardize
+Select the variables without the outliers you've calculated above. Standardize these variables using `scale` and save them to your data.
+
+```{r}
+# please insert your code here
+```
+
+# 2. Hierarchical cluster analysis
+You are interested in finding 6 groups of listings in your data using the variables standardized above. Conduct hierarchical cluster analysis using `hclust`, and report your findings. make sure to set the seed to 1234. Use the single linkage. Plot the results, and interpret the dendrogram. Repeat this analysis (with the same seed!) for males and females separately.
+
+```{r}
+set.seed(1234)
+# please insert your code here
+
+set.seed(1234)
+# please insert your code here
+```
+
+## Linkage
+Compare your results when using a complete linkage or average linkage. Use function `hclust`. Inspect the largest 3 clusters using `cutree`. Compare the results for the complete or average linkage, see if the results make sense to you.
+
+```{r}
+# please insert your code here
+```
+
+## QUESTION TO BE ANSWERED INSIDE RMARKDOWN: 
+### Why do you think that average linkage has many cases clustered in the third cluster, while complete linkage only a few? TIP: look at the distribution of the clusters.
+
+----------------------------------------------------------------------------------
+*please elaborate your answer (4-5 sentences) about here*
+
+
+----------------------------------------------------------------------------------
+
+## Distance measures
+
+### Euclidean distance
+By default, hierarchical clustering uses Euclidean distance:
+$$d(p,q) = \sqrt{\sum_{i=1}^m(q_{i}-p_{i})^2}$$
+
+Calculate this euclidean distance yourself on the scaled versions of `gross.income`, `Rating`, `cogs`, and `Total`. Do this only for the first 10 people. Start by calculating the distance for one pair of variables (as in the formula above). Then use a for loop, to calculate the distances among all variables. There should be $m(m-1)/2$ Euclidean distances where $m$ is the number of people. Please see the slides! You can also look up information about [for-loops](https://www.datamentor.io/r-programming/for-loop/ and last week's solutions).
+
+```{r}
+# first perform list-wise deletion
+# then select first ten observations
+
+# create a function for euclidean distance for two observations
+
+# then conduct the operation on the first and fifth observation
+# define p and q
+# Then fill in formula
+
+
+# to calculate distances between everyone
+# use these commands in a for loop:
+for(i in seq(1,nrow(d)-1)){
+  p <- d[i,]
+  for(k in seq(i+1,nrow(d))){
+    q <- d[k,]
+    print(euclideanDist(p,q))
+  }
+}
+
+# check with dist
+```
+
+Perform `hclust` using this distance of euclidean distance. Use `dist` on the first 10 observations. Use complete linkage.
+```{r}
+# please insert your code here
+```
+
+Next you will compare the results with cosine distance.
+
+### Cosine distance
+The law of cosines generalizes the Pythagorean theorem, which holds only for right triangles: if the angle $y$ is a right angle (of measure 90 degrees, or $\pi/2$ radians), then cos $y$ = 0, and thus the law of cosines reduces to the Pythagorean theorem $c^{2}=a^{2}+b^{2}$. The law of cosines is useful for computing the third side of a triangle when two sides and their enclosed angle are known, and in computing the angles of a triangle if all three sides are known. (see Wikipedia)
+
+The characteristics that make cosine so useful in many applications, is also used for cluster analysis: The cosine distance represents the similarity and is calculated by:
+
+$$cos(\theta)=\frac{p*q}{|p|\times|q|} = \frac{\sum_{i=1}^m p_{i}\times q_{i}}{\sqrt{\sum_{i=1}^m p_{i}^2} \times \sqrt{ \sum_{i=1}^m q_{i}^2}}$$
+Note that the sign $\times$ denotes a matrix multiplication (in r this is done by $%*%$) while the $*$ sign is a normal cross-product of the same matrix. The formula above treats only vectors $p$ and $q$. You will perform the formula above on all the scaled variables at once. So $p$ and $q$ are columns in matrix $M$.
+
+```{r}
+# first perform list-wise deletion
+# then select first ten observations
+d<- cars[1:10,] # insert your code here, we just give an example usings cars dataset
+  
+# create matrix out of these first ten observations using as.matrix()
+# transpose this matrix using t()
+# so that you will calculate the distance between 
+# observations and not variables
+Matrix <- t(as.matrix(d))
+
+# create dist object
+# 1- cosine similarity = cosine distance
+# use 1-crossprod to calculate the cross product of p and q (so the matrix by itself)
+# use colSums to sum the observations (square them first!)
+# and then take the square root and 
+# multiply these two matrices
+cosine_dist <- 1-crossprod(Matrix) /(sqrt(colSums(Matrix^2)%*%t(colSums(Matrix^2))))
+cosine_dist <- as.dist(cosine_dist)
+
+# use dist object to perform hclust with complete linkage
+
+# plot the hclust object (this plot gives you the dendrogram)
+
+```
+
+## QUESTION TO BE ANSWERED INSIDE RMARKDOWN: 
+### How do the dendrograms based on cosine and euclidean distance differ?
+
+----------------------------------------------------------------------------------
+*please elaborate your answer (4-5 sentences) about here*
+
+
+----------------------------------------------------------------------------------
+
+
+### Manhattan distance
+Both the Manhattan distance and the Hamming distance are developed for categorical data.
+The Manhattan distance is calculated by:
+
+$$d(p,q) = \sum_{i=1}^m |p_{i} - q_{i}|$$
+First calculate the Manhattan distance yourself. See lecture slides for how to create a function! To do this, select two categorical variables, namely `Gender` and `Customer.type` and make them numeric.
+
+```{r}
+# please insert your code here
+```
+
+```{r}
+# first perform list-wise deletion
+# on the two dummy variables you just created
+# then select first ten observations
+
+
+# create a function for Manhattan distance
+
+# calculate distance between first and fifth person
+
+
+# now for the first ten observations
+for(i in seq(1,nrow(d)-1)){
+  p <- d[i,]
+  for(k in seq(i+1,nrow(d))){
+    q <- d[k,]
+    print(manhattanDist(p,q))
+  }
+}
+
+
+# check with dist, method=manhattan
+```
+
+Perform a hierarchical cluster analysis, now with Manhattan distances with complete linkage, on all categorical variables (`Branch`, `City`, `Customer.type`, `Gender`). In order to do this, make sure that also Branch and City become numeric variables. Compare your results with the Euclidean distances using a dendrogram.
+
+```{r}
+# please insert your code here
+```
+
+## QUESTION TO BE ANSWERED INSIDE RMARKDOWN: 
+### How would you interpret these clusters? First, you've used two dichotomous variables Customer.type and Gender. How are the Manhattan distances affected when including multi-nomial variables such as Branch and City? HINT: How do dichotomous variables and multi-nomial variables differ?
+
+----------------------------------------------------------------------------------
+*please elaborate your answer (4-5 sentences) about here*
+
+
+----------------------------------------------------------------------------------
+
+### Hamming distance
+Finally, the hamming distance is appropriate for only nominal data. This measure can be calculated by:
+
+$$d(p,q)=\sum_{i=1}^m \left\{\begin{array}{ll}
+        0 & \mbox{if } p_{i} == q_{j}\\
+        1 & \mbox{else}
+    \end{array}
+    \right.$$
+    
+Calculate below the hamming distance yourself and transform it to a distance matrix by `as.dist`.
+
+```{r}
+# first perform list-wise deletion
+# then select first ten observations
+# create matrix out of the categorical variables (list-wise deletion)
+
+
+# calculate the hamming distance for the first and fifth observations in your data
+
+# include the code from the lecture slides 
+# to calculate the hamming distance for all observations 
+
+# include this distance matrix, and calculate a hierarchical clustering
+# use complete linkage, plot the dendrogram
+
+```
+
+# 3. K-means cluster analysis
+With the hierarchical cluster analysis, you do not have to specify how many clusters you expect. In K-means analysis you do. Perform the k-means analysis for 2 to 6 clusters on the entire dataset using euclidean distances. Plot the results. Install `factoextra` to plot the number of clusters with `fviz_cluster`. Do this only for the males in the dataset. Use library `gridExtra` and function `grid.arrange` to portray the graphs in a neat manner.
+
+```{r}
+library(factoextra) # used for determining optimal amount of clusters
+library(gridExtra)
+
+set.seed(1234)
+# please insert your code here
+```
+
+
+## Optimal number of clusters
+What is the optimal number of clusters according to the silhouette score, the elbow method or the Gap statistic? Use `factoextra` to determine the optimal number of clusters. Use `fviz_nbclust` and select `kmeans`. Include all observations.
+
+```{r}
+set.seed(1234)
+# please insert your code here
+```
+
+
+## QUESTION TO BE ANSWERED INSIDE RMARKDOWN: 
+### As you can see above, the results might differ dramatically. Can you think of a reason why the Gap statistic leads to such a different result than the other two methods?
+
+----------------------------------------------------------------------------------
+*please elaborate your answer (4-5 sentences) about here*
+
+
+----------------------------------------------------------------------------------
+
+# 4. Inspect cluster means
+Run the k-means clustering with the optimal number of clusters found above with the elbow method. Use `kmeans`. Save the solution to an R object. Inspect the variables for the clusters found using `$centers`. Remember to set seed to 1234!
+
+```{r}
+set.seed(1234)
+# please insert your code here
+```
+
+Now add the cluster membership to the data, and inspect the same variables using `aggregate`. In order to add the cluster membership to the data, you need to find the index of the non-missing observations that you've used for the k-means clustering using `rownames`.
+
+```{r}
+# please insert your code here
+```
+
+## Post-hoc analysis
+Test whether the groups differ with respect to income using an anova `aov`. Test whether the groups differ with respect to `Customer.type` using a chi-square test `chisq`. Interpret your findings.
+
+```{r}
+# please insert your code here
+```
