@@ -31,7 +31,10 @@ To get an idea on the outliers in the data, inspect the main variables gross inc
 
 ```{r}
 par(mfrow=c(1,4))
-# please insert your code here x 
+boxplot(df$gross.income, main= "Gross income", cex.main= 2, cex= 2)
+boxplot(df$Rating, main= "Rating", cex.main= 2, cex= 2)
+boxplot(df$cogs, main= "Cogs", cex.main= 2, cex= 2)
+boxplot(df$Unit.price, main= "Unit price", cex.main= 2, cex=2 )# please insert your code here x 
 ```
 
 Identify the outliers by the method of the interquartile range (the difference between the first and third quarter). Create a function to calculate the upper and lower limits:
@@ -41,11 +44,13 @@ $$lower = Q1 - 1.5*IQR$$
 $$upper = Q3 + 1.5*IQR$$
 ```{r}
 calculate_limits<-function(var){
-  IQR <- # please insert your code here
-  lower <- # please insert your code here
-  upper <- # please insert your code here
-  return(list(lower, upper)) # this list contains two values that you can retrieve by [[]]
-}
+  Q1 <- quantile(df$gross.income, 0.25)
+  Q3 <- quantile(df$gross.income, 0.75)
+
+  IQR <- IQR(df$gross.income) # please insert your code here
+  lower <- Q1 - 1.5* IQR # please insert your code here
+  upper <- Q3 + 1.5* IQR  # please insert your code here
+  list(lower, upper) # this list contains two values that you can retrieve by [[]]}
 ```
 
 Remove outliers using your function for each of the four variables explored above. This can be done by assigning an NA to all the data outside the limits calculated above. Do this separately for each variable!
